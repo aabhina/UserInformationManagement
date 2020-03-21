@@ -23,15 +23,18 @@ Errors returned :
 
 REQUEST BODY : 
 {
-    "name": "JohnDoe",
+    "name": "John Doe",
     "email": "john.doe1@gmail.com",
     "country": "Canada",
     "phoneNumber": "999999992012"
 }
 
 RESPONSE : 
-The generated userID is : c2403fc3-d
-
+{
+    "userID": "19ad783e-1",
+    "errorList": null,
+    "successMessage": "Successfully generated a new userID."
+}
 
 
 
@@ -53,14 +56,16 @@ Errors returned :
 
 REQUEST :
 {
-    "userID": "a8c1415c-3",
-    "usageType": "SMS",
+    "userID": "19ad783e-1",
+    "usageType": "VOICE",
     "timeStamp": "2020/02/25"
 }
 
 RESPONSE : 
-The usage details were updated successfully !!
-
+{
+    "errorList": null,
+    "successMessage": "The usage details were successfully updated."
+}
 
 
 METHOD 3:
@@ -77,11 +82,19 @@ The day to fetch information from — should not be future date.
 
 REQUEST :
 {
-    "userID": "a8c1415c-3",
+    "userID": "19ad783e-1",
     "startDate": "2020/02/21",
-    "usageType": "DATA"
+    "usageType": "ALL"
 }
 
 RESPONSE : 
-The usageInfo details for the userID a8c1415c-3are : [[DATA, 2020/02/21], [DATA, 2020/02/24]]
-
+{
+    "userID": "927efe2b-3",
+    "usageDetailsList": [
+        [
+            "VOICE",
+            "2020/02/25"
+        ]
+    ],
+    "errorString": null
+}
