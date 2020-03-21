@@ -13,12 +13,6 @@ public class UsageDetails {
         this.usageType = usageType;
     }
 
-//    enum usageType
-//    {
-//        DATA, VOICE, SMS;
-//    }
-
-
     public String getUserID() {
         return userID;
     }

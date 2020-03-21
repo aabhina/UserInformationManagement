@@ -49,7 +49,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
             List<List<String>>> usageDetailsMapInMemory) {
         //Takes in User Id.
         //Type of usage: DATA, VOICE SMS.
-        //Enter the date in the YYYY/MM/DD format in the request body.
+        //The date in the YYYY/MM/DD format in the request body.
 
         StringBuilder responseFromValidateUsageInfoRequest = new StringBuilder();
 
@@ -72,7 +72,6 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         Date datePassed = null;
         try {
             datePassed = new SimpleDateFormat("yyyy/MM/dd").parse(timeStamp);
-            System.out.println("datePassed is : " +  datePassed);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -89,9 +88,10 @@ public class UserIDMgmtService implements IUserIDMgmtService {
     @Override
     public String validateFetchUsageInfoRequest(UsageHistory usageHistory,
                                                 Map<String, List<List<String>>> usageDetailsMapInMemory) {
-        //Validations :
+
         //If the ID does not exist, an error should be thrown.
         //The day to fetch information from — should not be future date.
+
         StringBuilder responseFromValidateUsageInfoRequest = new StringBuilder();
 
         String userID = usageHistory.getUserID();
@@ -104,7 +104,6 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         Date datePassed = null;
         try {
             datePassed = new SimpleDateFormat("yyyy/MM/dd").parse(timeStamp);
-            System.out.println("datePassed is : " +  datePassed);
         } catch (ParseException e) {
             e.printStackTrace();
         }

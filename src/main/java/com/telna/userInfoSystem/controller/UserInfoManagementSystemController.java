@@ -130,20 +130,20 @@ public class UserInfoManagementSystemController {
             Date dateStoredInUsageMap = null;
             try {
                 dateStoredInUsageMap = new SimpleDateFormat("yyyy/MM/dd").parse(dateString);
-                System.out.println("dateString is : " +  dateStoredInUsageMap);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
             if(!datePassed.after(dateStoredInUsageMap)
-                    && usageType.equalsIgnoreCase(usageTypeFromMemoryMap)) {
+                    && (usageType.equalsIgnoreCase(usageTypeFromMemoryMap)
+                    || usageType.equalsIgnoreCase("ALL"))) {
                 usageHistoryListFiltered.add(usgHistory);
             }
 
         }
 
         return new ResponseEntity<>(
-                "The usageInfo details for the userID " + userID + "are : " + usageHistoryListFiltered,
+                "The usageInfo details for the userID " + userID + " are : " + usageHistoryListFiltered,
                 HttpStatus.OK);
     }
 }
