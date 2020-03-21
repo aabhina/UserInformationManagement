@@ -5,7 +5,6 @@ import com.telna.userInfoSystem.model.UsageHistoryRequest;
 import com.telna.userInfoSystem.model.User;
 import com.telna.userInfoSystem.model.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,24 +13,34 @@ import java.util.*;
 @Service
 public class UserIDMgmtService implements IUserIDMgmtService {
 
+    public static final String VALIDATION_ERROR_NAME = "VALIDATION ERROR : Please enter only characters/letters in the name. ";
+    public static final String VALIDATION_ERROR_EMAIL = "VALIDATION ERROR : Please enter a valid email ID. ";
+    public static final String VALIDATION_ERROR_DUPLICATE_EMAIL = "VALIDATION ERROR : Duplicate email ID. This email already exists. Please enter a valid email ID. ";
+    public static final String VALIDATION_ERROR_PHONE_NUMBER = "VALIDATION ERROR : Please enter a valid phone number with only numbers & dashes. ";
+    public static final String VALIDATION_ERROR_USER_ID = "VALIDATION ERROR : The passed userID does not exist. ";
+    public static final String VALIDATION_ERROR_USAGE_TYPE = "VALIDATION ERROR : The passed usageType does not exist. Valid usageType values are DATA, VOICE, SMS. ";
+    public static final String VALIDATION_ERROR_TIMESTAMP = "VALIDATION ERROR : The passed timestamp is a future date. Please enter a date less than or equal to today's date. ";
+    public static final String VALIDATION_ERROR_USER_ID_DOES_NOT_EXIST = "VALIDATION ERROR : The passed userID does not exist. ";
+    public static final String VALIDATION_ERROR_FUTURE_DATE = "VALIDATION ERROR : The passed startDate is a future date. Please enter a date less than or equal to today's date. ";
+
+    @Override
     public String validateUserInputAndGenerateUserID(User user, List<UserDetails> userDetailsListInMemory) {
         StringBuilder generatedUserId = new StringBuilder();
 
         if(!validateName(user.getName())) {
-            generatedUserId.append("VALIDATION ERROR : Please enter only characters/letters in the name. ");
+            generatedUserId.append(VALIDATION_ERROR_NAME);
         }
 
         if(!validateEmail(user.getEmail())) {
-            generatedUserId.append("VALIDATION ERROR : Please enter a valid email ID. ");
+            generatedUserId.append(VALIDATION_ERROR_EMAIL);
         }
 
         if(isDuplicateEmail(user.getEmail(), userDetailsListInMemory)) {
-            generatedUserId.append("VALIDATION ERROR : Duplicate email ID. This email already exists. " +
-                    "Please enter a valid email ID. ");
+            generatedUserId.append(VALIDATION_ERROR_DUPLICATE_EMAIL);
         }
 
         if(!validatePhoneNumber(user.getPhoneNumber())) {
-            generatedUserId.append("VALIDATION ERROR : Please enter a valid phone number with only numbers & dashes. ");
+            generatedUserId.append(VALIDATION_ERROR_PHONE_NUMBER);
         }
 
         if(generatedUserId.length() == 0) {
@@ -78,7 +87,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         String userID = usageDetails.getUserID();
         if(!usageDetailsMapInMemory.containsKey(userID)) {
             responseFromValidateUsageInfoRequest.
-                    append("VALIDATION ERROR : The passed userID does not exist. ");
+                    append(VALIDATION_ERROR_USER_ID);
         }
 
         String usageType = usageDetails.getUsageType();
@@ -86,8 +95,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
                 && !usageType.equalsIgnoreCase("VOICE")
                 && !usageType.equalsIgnoreCase("SMS")) {
             responseFromValidateUsageInfoRequest.
-                    append("VALIDATION ERROR : The passed usageType does not exist. " +
-                            "Valid usageType values are DATA, VOICE, SMS. ");
+                    append(VALIDATION_ERROR_USAGE_TYPE);
         }
 
         String timeStamp = usageDetails.getTimeStamp();
@@ -100,8 +108,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         Date todaysDate = new Date();
         if(null == datePassed || datePassed.after(todaysDate)) {
             responseFromValidateUsageInfoRequest.
-                    append("VALIDATION ERROR : The passed timestamp is a future date. " +
-                            "Please enter a date less than or equal to today's date. ");
+                    append(VALIDATION_ERROR_TIMESTAMP);
         }
 
         return responseFromValidateUsageInfoRequest.toString();
@@ -140,7 +147,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         String userID = usageHistoryRequest.getUserID();
         if(!usageDetailsMapInMemory.containsKey(userID)) {
             responseFromValidateUsageInfoRequest.
-                    append("VALIDATION ERROR : The passed userID does not exist. ");
+                    append(VALIDATION_ERROR_USER_ID_DOES_NOT_EXIST);
         }
 
         String timeStamp = usageHistoryRequest.getStartDate();
@@ -153,8 +160,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         Date todaysDate = new Date();
         if(null == datePassed || datePassed.after(todaysDate)) {
             responseFromValidateUsageInfoRequest.
-                    append("VALIDATION ERROR : The passed startDate is a future date. " +
-                            "Please enter a date less than or equal to today's date. ");
+                    append(VALIDATION_ERROR_FUTURE_DATE);
         }
 
         return responseFromValidateUsageInfoRequest.toString();
