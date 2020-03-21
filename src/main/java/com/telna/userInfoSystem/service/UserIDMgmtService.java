@@ -1,17 +1,15 @@
 package com.telna.userInfoSystem.service;
 
 import com.telna.userInfoSystem.model.UsageDetails;
-import com.telna.userInfoSystem.model.UsageHistory;
+import com.telna.userInfoSystem.model.UsageHistoryRequest;
 import com.telna.userInfoSystem.model.User;
 import com.telna.userInfoSystem.model.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserIDMgmtService implements IUserIDMgmtService {
@@ -85,8 +83,29 @@ public class UserIDMgmtService implements IUserIDMgmtService {
         return responseFromValidateUsageInfoRequest.toString();
     }
 
+    public void updateUsageDetailsInMemory(UsageDetails usageDetails,
+                                            Map<String, List<List<String>>> usageDetailsMapInMemory) {
+        List<String> listOfUsageDetailsAndTimestamp = new ArrayList<>();
+        listOfUsageDetailsAndTimestamp.add(usageDetails.getUsageType());
+        listOfUsageDetailsAndTimestamp.add(usageDetails.getTimeStamp());
+
+        List<List<String>> listOfUsageDetailsAndTimestampAlreadyPresent = new ArrayList<>();
+
+        if(usageDetailsMapInMemory.containsKey(usageDetails.getUserID())) {
+            listOfUsageDetailsAndTimestampAlreadyPresent =
+                    usageDetailsMapInMemory.get(usageDetails.getUserID());
+            listOfUsageDetailsAndTimestampAlreadyPresent.add(listOfUsageDetailsAndTimestamp);
+
+            usageDetailsMapInMemory.put(usageDetails.getUserID(), listOfUsageDetailsAndTimestampAlreadyPresent);
+        }
+        else {
+            listOfUsageDetailsAndTimestampAlreadyPresent.add(listOfUsageDetailsAndTimestamp);
+            usageDetailsMapInMemory.put(usageDetails.getUserID(), listOfUsageDetailsAndTimestampAlreadyPresent);
+        }
+    }
+
     @Override
-    public String validateFetchUsageInfoRequest(UsageHistory usageHistory,
+    public String validateFetchUsageInfoRequest(UsageHistoryRequest usageHistoryRequest,
                                                 Map<String, List<List<String>>> usageDetailsMapInMemory) {
 
         //If the ID does not exist, an error should be thrown.
@@ -94,13 +113,13 @@ public class UserIDMgmtService implements IUserIDMgmtService {
 
         StringBuilder responseFromValidateUsageInfoRequest = new StringBuilder();
 
-        String userID = usageHistory.getUserID();
+        String userID = usageHistoryRequest.getUserID();
         if(!usageDetailsMapInMemory.containsKey(userID)) {
             responseFromValidateUsageInfoRequest.
                     append("VALIDATION ERROR : The passed userID does not exist. ");
         }
 
-        String timeStamp = usageHistory.getStartDate();
+        String timeStamp = usageHistoryRequest.getStartDate();
         Date datePassed = null;
         try {
             datePassed = new SimpleDateFormat("yyyy/MM/dd").parse(timeStamp);

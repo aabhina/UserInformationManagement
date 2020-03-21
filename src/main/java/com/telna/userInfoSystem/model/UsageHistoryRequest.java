@@ -1,6 +1,6 @@
 package com.telna.userInfoSystem.model;
 
-public class UsageHistory {
+public class UsageHistoryRequest {
     private String userID;
     private String startDate;
     private String usageType;

@@ -52,72 +52,64 @@ public class UserInfoManagementSystemController {
     }
 
     @PostMapping("updateUsageInfo")
-    public ResponseEntity<String> updateUsageInfo(@RequestBody UsageDetails usageDetails) {
+    public ResponseEntity<UpdateUsageInfoResponse> updateUsageInfo(@RequestBody UsageDetails usageDetails) {
 
-        String responseFromUpdateUsageInfoService =  userIDMgmtService.
+        UpdateUsageInfoResponse updateUsageInfoResponse = new UpdateUsageInfoResponse();
+
+        String responseFromValidateUsageInfoService =  userIDMgmtService.
                 validateUsageInfoRequest(usageDetails, usageDetailsMapInMemory);
 
-        if (responseFromUpdateUsageInfoService.contains("ERROR")) {
-            return new ResponseEntity<>(
-                    responseFromUpdateUsageInfoService,
+        if (responseFromValidateUsageInfoService.contains("ERROR")) {
+            updateUsageInfoResponse.setErrorList(responseFromValidateUsageInfoService);
+
+            return new ResponseEntity<UpdateUsageInfoResponse>(
+                    updateUsageInfoResponse,
                     HttpStatus.BAD_REQUEST);
         }
         else {
-            List<String> listOfUsageDetailsAndTimestamp = new ArrayList<>();
-            listOfUsageDetailsAndTimestamp.add(usageDetails.getUsageType());
-            listOfUsageDetailsAndTimestamp.add(usageDetails.getTimeStamp());
-
-            List<List<String>> listOfUsageDetailsAndTimestampAlreadyPresent = new ArrayList<>();
-
-            if(usageDetailsMapInMemory.containsKey(usageDetails.getUserID())) {
-                listOfUsageDetailsAndTimestampAlreadyPresent =
-                        usageDetailsMapInMemory.get(usageDetails.getUserID());
-                listOfUsageDetailsAndTimestampAlreadyPresent.add(listOfUsageDetailsAndTimestamp);
-
-                usageDetailsMapInMemory.put(usageDetails.getUserID(), listOfUsageDetailsAndTimestampAlreadyPresent);
-            }
-            else {
-                listOfUsageDetailsAndTimestampAlreadyPresent.add(listOfUsageDetailsAndTimestamp);
-                usageDetailsMapInMemory.put(usageDetails.getUserID(), listOfUsageDetailsAndTimestampAlreadyPresent);
-            }
+            userIDMgmtService.updateUsageDetailsInMemory(usageDetails, usageDetailsMapInMemory);
+            updateUsageInfoResponse.setSuccessMessage("The usage details were successfully updated.");
         }
 
         System.out.println("usageDetailsMapInMemory is : " + usageDetailsMapInMemory);
         System.out.println("Current size of usageDetailsMapInMemory is : " + usageDetailsMapInMemory.size());
 
-        return new ResponseEntity<>(
-                "The usage details were updated successfully !!",
+        return new ResponseEntity<UpdateUsageInfoResponse>(
+                updateUsageInfoResponse,
                 HttpStatus.OK);
     }
 
     @GetMapping("fetchUsageInfo")
-    public ResponseEntity<String> fetchUsageInfo(@RequestBody UsageHistory usageHistory) {
-        //This command will retrieve ALL information about the user’s usage history based
+    public ResponseEntity<UsageHistoryResponse> fetchUsageInfo(@RequestBody UsageHistoryRequest usageHistoryRequest) {
+        //This will retrieve ALL information about the user’s usage history based
         //on a time range.
         //Takes in User Id, Start Date, Type of Data (DATA, VOICE, SMS, ALL) in the request body.
 
+        UsageHistoryResponse usageHistoryResponse = new UsageHistoryResponse();
+
         String responseFromFetchUsageInfoService =  userIDMgmtService.
-                validateFetchUsageInfoRequest(usageHistory, usageDetailsMapInMemory);
+                validateFetchUsageInfoRequest(usageHistoryRequest, usageDetailsMapInMemory);
 
         if (responseFromFetchUsageInfoService.contains("ERROR")) {
-            return new ResponseEntity<>(
-                    responseFromFetchUsageInfoService,
+            usageHistoryResponse.setErrorString(responseFromFetchUsageInfoService);
+
+            return new ResponseEntity<UsageHistoryResponse>(
+                    usageHistoryResponse,
                     HttpStatus.BAD_REQUEST);
         }
 
         List<List<String>> usageHistoryList = new ArrayList<>();
         List<List<String>> usageHistoryListFiltered = new ArrayList<>();
 
-        String usageType = usageHistory.getUsageType();
+        String usageType = usageHistoryRequest.getUsageType();
 
-        String userID = usageHistory.getUserID();
+        String userID = usageHistoryRequest.getUserID();
         usageHistoryList = usageDetailsMapInMemory.get(userID);
 
-        String startDate = usageHistory.getStartDate();
+        String startDate = usageHistoryRequest.getStartDate();
         Date datePassed = null;
         try {
             datePassed = new SimpleDateFormat("yyyy/MM/dd").parse(startDate);
-            System.out.println("startDate is : " +  datePassed);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -142,8 +134,10 @@ public class UserInfoManagementSystemController {
 
         }
 
-        return new ResponseEntity<>(
-                "The usageInfo details for the userID " + userID + " are : " + usageHistoryListFiltered,
+        usageHistoryResponse.setUserID(userID);
+        usageHistoryResponse.setUsageDetailsList(usageHistoryListFiltered);
+
+        return new ResponseEntity<UsageHistoryResponse>(usageHistoryResponse,
                 HttpStatus.OK);
     }
 }
