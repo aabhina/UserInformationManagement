@@ -1,16 +1,23 @@
 package com.telna.userInfoSystem.model;
 
-import java.sql.Timestamp;
-
 public class UsageDetails {
     String userID;
-    //Enum usageType;
-    Timestamp timeStamp;
+    String usageType;
+    String timeStamp;
 
-    enum usageType
-    {
-        DATA, VOICE, SMS;
+    public String getUsageType() {
+        return usageType;
     }
+
+    public void setUsageType(String usageType) {
+        this.usageType = usageType;
+    }
+
+//    enum usageType
+//    {
+//        DATA, VOICE, SMS;
+//    }
+
 
     public String getUserID() {
         return userID;
@@ -20,11 +27,11 @@ public class UsageDetails {
         this.userID = userID;
     }
 
-    public Timestamp getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Timestamp timeStamp) {
+    public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
     }
 
