@@ -18,20 +18,25 @@ public class UserInfoManagementSystemController {
     //This should ideally be handled by a DB, but for simplicity, we are using an in-memory list here.
     List<UserDetails> userDetailsListInMemory = new ArrayList<>();
 
-    //List<UsageDetails> usageDetailsListInMemory = new ArrayList<>();
+    //Map of userID --> Usage Details
     Map<String, List<List<String>>> usageDetailsMapInMemory =  new HashMap<>();
 
     @Autowired
     IUserIDMgmtService userIDMgmtService;
 
     @PostMapping("/generateUserID")
-    public ResponseEntity<String> generateUserID(@RequestBody User user) {
+    public ResponseEntity<GenerateUserIdResponse> generateUserID(@RequestBody User user) {
 
-        String responseFromUserIdMgmtService = userIDMgmtService.generateUserID(user, userDetailsListInMemory);
+        GenerateUserIdResponse generateUserIdResponse = new GenerateUserIdResponse();
+
+        String responseFromUserIdMgmtService = userIDMgmtService.validateUserInputAndGenerateUserID(user,
+                userDetailsListInMemory);
 
         if (responseFromUserIdMgmtService.contains("ERROR")) {
-            return new ResponseEntity<>(
-                    responseFromUserIdMgmtService,
+            generateUserIdResponse.setErrorList(responseFromUserIdMgmtService);
+
+            return new ResponseEntity<GenerateUserIdResponse>(
+                    generateUserIdResponse,
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -40,14 +45,16 @@ public class UserInfoManagementSystemController {
             userDetails.setUser(user);
             userDetails.setUserID(responseFromUserIdMgmtService);
             userDetailsListInMemory.add(userDetails);
-
             usageDetailsMapInMemory.put(responseFromUserIdMgmtService, new ArrayList<>());
+
+            generateUserIdResponse.setUserID(responseFromUserIdMgmtService);
+            generateUserIdResponse.setSuccessMessage("Successfully generated a new userID.");
         }
 
         System.out.println("Current size of userDetailsListInMemory is : " + userDetailsListInMemory.size());
 
-        return new ResponseEntity<>(
-                "The generated userID is : " + responseFromUserIdMgmtService,
+        return new ResponseEntity<GenerateUserIdResponse>(
+                generateUserIdResponse,
                 HttpStatus.OK);
     }
 
@@ -115,24 +122,7 @@ public class UserInfoManagementSystemController {
         }
 
         //filter the map for the lists which have a date greater than or equal to the passed date.
-        for(List<String> usgHistory : usageHistoryList) {
-            String usageTypeFromMemoryMap = usgHistory.get(0);
-
-            String dateString = usgHistory.get(1);
-            Date dateStoredInUsageMap = null;
-            try {
-                dateStoredInUsageMap = new SimpleDateFormat("yyyy/MM/dd").parse(dateString);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-            if(!datePassed.after(dateStoredInUsageMap)
-                    && (usageType.equalsIgnoreCase(usageTypeFromMemoryMap)
-                    || usageType.equalsIgnoreCase("ALL"))) {
-                usageHistoryListFiltered.add(usgHistory);
-            }
-
-        }
+        userIDMgmtService.filterUsageList(usageHistoryList, usageHistoryListFiltered, usageType, datePassed);
 
         usageHistoryResponse.setUserID(userID);
         usageHistoryResponse.setUsageDetailsList(usageHistoryListFiltered);
@@ -140,4 +130,5 @@ public class UserInfoManagementSystemController {
         return new ResponseEntity<UsageHistoryResponse>(usageHistoryResponse,
                 HttpStatus.OK);
     }
+
 }

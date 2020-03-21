@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class UserIDMgmtService implements IUserIDMgmtService {
 
-    public String generateUserID(User user, List<UserDetails> userDetailsListInMemory) {
+    public String validateUserInputAndGenerateUserID(User user, List<UserDetails> userDetailsListInMemory) {
         StringBuilder generatedUserId = new StringBuilder();
 
         if(!validateName(user.getName())) {
@@ -40,6 +40,30 @@ public class UserIDMgmtService implements IUserIDMgmtService {
 
 
         return generatedUserId.toString();
+    }
+
+    @Override
+    public void filterUsageList(List<List<String>> usageHistoryList,
+                                 List<List<String>> usageHistoryListFiltered,
+                                 String usageType, Date datePassed) {
+        for(List<String> usgHistory : usageHistoryList) {
+            String usageTypeFromMemoryMap = usgHistory.get(0);
+
+            String dateString = usgHistory.get(1);
+            Date dateStoredInUsageMap = null;
+            try {
+                dateStoredInUsageMap = new SimpleDateFormat("yyyy/MM/dd").parse(dateString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if(!datePassed.after(dateStoredInUsageMap)
+                    && (usageType.equalsIgnoreCase(usageTypeFromMemoryMap)
+                    || usageType.equalsIgnoreCase("ALL"))) {
+                usageHistoryListFiltered.add(usgHistory);
+            }
+
+        }
     }
 
     @Override
@@ -166,7 +190,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
     private boolean validateName(String name) {
         return ((name != null)
                 && (!name.equals(""))
-                && (name.matches("^[a-zA-Z]*$")));
+                && (name.matches("^[a-zA-Z\\s]*$")));
     }
 
 }
