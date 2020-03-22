@@ -1,6 +1,11 @@
 # UserInformationManagement
 User Information Management System
 
+Import the maven project in IDE. (Eclipse/IntelliJ)
+Run the class “UserInfoSystemApplication” as SpringBoot application.
+By default your services should be up on your local machine at port 8080.
+
+
 APIs :
 
 METHOD 1 :
@@ -12,18 +17,17 @@ Returns a generated USER_ID.
 A user ID should be 10 characters/numbers.
 
 Validations : validation should be done to ensure that:
-§ Name is only characters;
-§ Email has an @ and a . in the correct order.;
-§ Phone number only has numbers and dashes.
-o Duplicate emails should throw an error to the terminal
+1. Name is only characters.
+2. Email has an @ and a . in the correct order.
+3. Phone number only has numbers and dashes.
+4. Duplicate emails should throw an error.
 
 Errors returned : 
 4 different errors based on the above validations.
 
-
 REQUEST BODY : 
 {
-    "name": "John Doe",
+    "name": “John Doe",
     "email": "john.doe1@gmail.com",
     "country": "Canada",
     "phoneNumber": "999999992012"
@@ -38,9 +42,22 @@ RESPONSE :
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 METHOD 2 :
 POST : /updateUsageInfo
 URL : localhost:8080/userInfoMgmt/updateUsageInfo
+
+Use the userID generated from the method 1 above, and use in this service.
 
 Takes in User Id, Type of usage: DATA, VOICE SMS, Timestamp
 (Date in the YYYY/MM/DD format) in the request body.
@@ -68,9 +85,21 @@ RESPONSE :
 }
 
 
+
+
+
+
+
+
+
+
+
+
 METHOD 3:
 GET : /fetchUsageInfo
 URL : localhost:8080/userInfoMgmt/fetchUsageInfo
+
+Use the userID generated from the method 1 above, and use in this service.
 
 Retrieves ALL information about the user’s usage history based
 on a time range.
@@ -90,6 +119,62 @@ REQUEST :
 RESPONSE : 
 {
     "userID": "927efe2b-3",
+    "usageDetailsList": [
+        [
+            "VOICE",
+            "2020/02/25"
+        ],
+        [
+            "VOICE",
+            "2020/02/25"
+        ],
+        [
+            "DATA",
+            "2020/02/25"
+        ],
+        [
+            "DATA",
+            "2020/02/25"
+        ],
+        [
+            "SMS",
+            "2020/02/25"
+        ]
+    ],
+    "errorString": null
+}
+
+REQUEST :
+{
+    "userID": "553bc6c6-4",
+    "startDate": "2020/02/21",
+    "usageType": "DATA"
+}
+
+RESPONSE :
+{
+    "userID": "553bc6c6-4",
+    "usageDetailsList": [
+        [
+            "DATA",
+            "2020/02/25"
+        ]
+    ],
+    "errorString": null
+}
+
+REQUEST : 
+{
+    "userID": "553bc6c6-4",
+    "startDate": "2020/02/21",
+    "usageType": "VOICE"
+}
+
+
+
+RESPONSE :
+{
+    "userID": "553bc6c6-4",
     "usageDetailsList": [
         [
             "VOICE",
