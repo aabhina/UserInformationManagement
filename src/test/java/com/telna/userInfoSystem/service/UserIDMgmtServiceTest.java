@@ -1,5 +1,7 @@
 package com.telna.userInfoSystem.service;
 
+import com.telna.userInfoSystem.model.UsageDetails;
+import com.telna.userInfoSystem.model.UsageHistoryRequest;
 import com.telna.userInfoSystem.model.User;
 import com.telna.userInfoSystem.model.UserDetails;
 
@@ -8,8 +10,7 @@ import org.junit.jupiter.*;
 import org.springframework.util.Assert;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -116,18 +117,175 @@ class UserIDMgmtServiceTest {
     }
 
     @Test
-    void filterUsageList() {
+    void validateUsageInfoRequest_ForAllValidParamsInRequest() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageDetails usageDetails = new UsageDetails();
+        usageDetails.setUserID("abcdefghij");
+        usageDetails.setUsageType("DATA");
+        usageDetails.setTimeStamp("2020/02/21");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory =  new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateUsageInfoRequest(usageDetails, usageDetailsMapInMemory);
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.doesNotContain("ERROR",responseFromValidateUsageInfoRequest);
     }
 
     @Test
-    void validateUsageInfoRequest() {
+    void validateUsageInfoRequest_ForUserIdNotPresent() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageDetails usageDetails = new UsageDetails();
+        usageDetails.setUserID("abcdefghij");
+        usageDetails.setUsageType("DATA");
+        usageDetails.setTimeStamp("2020/02/21");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory =  new HashMap<>();
+        //usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateUsageInfoRequest(usageDetails, usageDetailsMapInMemory);
+
+        String VALIDATION_ERROR_USER_ID = "VALIDATION ERROR : The passed userID does not exist. ";
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.hasText(VALIDATION_ERROR_USER_ID,responseFromValidateUsageInfoRequest);
+    }
+
+    @Test
+    void validateUsageInfoRequest_ForIncorrectUsageType() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageDetails usageDetails = new UsageDetails();
+        usageDetails.setUserID("abcdefghij");
+        usageDetails.setUsageType("ABC");
+        usageDetails.setTimeStamp("2020/02/21");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory =  new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateUsageInfoRequest(usageDetails, usageDetailsMapInMemory);
+
+        String VALIDATION_ERROR_USAGE_TYPE = "VALIDATION ERROR : The passed usageType does not exist. Valid usageType values are DATA, VOICE, SMS. ";
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.hasText(VALIDATION_ERROR_USAGE_TYPE,responseFromValidateUsageInfoRequest);
+    }
+
+    @Test
+    void validateUsageInfoRequest_ForFutureDateInRequest() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageDetails usageDetails = new UsageDetails();
+        usageDetails.setUserID("abcdefghij");
+        usageDetails.setUsageType("DATA");
+        usageDetails.setTimeStamp("2020/05/21");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory =  new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateUsageInfoRequest(usageDetails, usageDetailsMapInMemory);
+
+        String VALIDATION_ERROR_TIMESTAMP = "VALIDATION ERROR : The passed timestamp is a future date. Please enter a date less than or equal to today's date. ";
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.hasText(VALIDATION_ERROR_TIMESTAMP,responseFromValidateUsageInfoRequest);
+    }
+
+    @Test
+    void validateFetchUsageInfoRequest_ForAllValidParamsInRequest() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageHistoryRequest usageHistoryRequest = new UsageHistoryRequest();
+        usageHistoryRequest.setUserID("abcdefghij");
+        usageHistoryRequest.setStartDate("2020/02/12");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory = new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateFetchUsageInfoRequest(usageHistoryRequest, usageDetailsMapInMemory);
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.doesNotContain("ERROR",responseFromValidateUsageInfoRequest);
+    }
+
+    @Test
+    void validateFetchUsageInfoRequest_ForInvalidUserID() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageHistoryRequest usageHistoryRequest = new UsageHistoryRequest();
+        usageHistoryRequest.setUserID("abcdefghij");
+        usageHistoryRequest.setStartDate("2020/02/12");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory = new HashMap<>();
+        //usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateFetchUsageInfoRequest(usageHistoryRequest, usageDetailsMapInMemory);
+
+        String VALIDATION_ERROR_USER_ID_DOES_NOT_EXIST = "VALIDATION ERROR : The passed userID does not exist. ";
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.hasText(VALIDATION_ERROR_USER_ID_DOES_NOT_EXIST,responseFromValidateUsageInfoRequest);
+    }
+
+    @Test
+    void validateFetchUsageInfoRequest_ForFutureDateInRequest() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageHistoryRequest usageHistoryRequest = new UsageHistoryRequest();
+        usageHistoryRequest.setUserID("abcdefghij");
+        usageHistoryRequest.setStartDate("2020/05/12");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory = new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        String responseFromValidateUsageInfoRequest =
+                userIDMgmtService.validateFetchUsageInfoRequest(usageHistoryRequest, usageDetailsMapInMemory);
+
+        String VALIDATION_ERROR_FUTURE_DATE = "VALIDATION ERROR : The passed startDate is a future date. Please enter a date less than or equal to today's date. ";
+
+        assertNotNull(responseFromValidateUsageInfoRequest);
+        Assert.hasText(VALIDATION_ERROR_FUTURE_DATE,responseFromValidateUsageInfoRequest);
     }
 
     @Test
     void updateUsageDetailsInMemory() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        UsageDetails usageDetails =  new UsageDetails();
+        usageDetails.setTimeStamp("2020/02/21");
+        usageDetails.setUsageType("DATA");
+        usageDetails.setUserID("abcdefghij");
+
+        Map<String, List<List<String>>> usageDetailsMapInMemory = new HashMap<>();
+        usageDetailsMapInMemory.put("abcdefghij", new ArrayList<>());
+
+        userIDMgmtService.updateUsageDetailsInMemory(usageDetails, usageDetailsMapInMemory);
+
+        assertNotNull(usageDetailsMapInMemory);
+        assertEquals(1, usageDetailsMapInMemory.size());
     }
 
     @Test
-    void validateFetchUsageInfoRequest() {
+    void filterUsageList() {
+        IUserIDMgmtService userIDMgmtService = new UserIDMgmtService();
+
+        List<List<String>> usageHistoryList = new ArrayList<>();
+        List<List<String>> usageHistoryListFiltered = new ArrayList<>();
+        String usageType = "";
+        Date datePassed = new Date();
+
+        userIDMgmtService.filterUsageList(usageHistoryList,
+                usageHistoryListFiltered, usageType, datePassed);
+
+        assertNotNull(usageHistoryListFiltered);
     }
 }

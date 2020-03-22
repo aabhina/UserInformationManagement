@@ -84,12 +84,14 @@ public class UserIDMgmtService implements IUserIDMgmtService {
 
         StringBuilder responseFromValidateUsageInfoRequest = new StringBuilder();
 
+        //Validate if userID is already present.
         String userID = usageDetails.getUserID();
         if(!usageDetailsMapInMemory.containsKey(userID)) {
             responseFromValidateUsageInfoRequest.
                     append(VALIDATION_ERROR_USER_ID);
         }
 
+        //Validate if usageType is one of the 3 values.
         String usageType = usageDetails.getUsageType();
         if(!usageType.equalsIgnoreCase("DATA")
                 && !usageType.equalsIgnoreCase("VOICE")
@@ -98,6 +100,7 @@ public class UserIDMgmtService implements IUserIDMgmtService {
                     append(VALIDATION_ERROR_USAGE_TYPE);
         }
 
+        //Validate if the date passed is not a future date.
         String timeStamp = usageDetails.getTimeStamp();
         Date datePassed = null;
         try {
@@ -144,12 +147,14 @@ public class UserIDMgmtService implements IUserIDMgmtService {
 
         StringBuilder responseFromValidateUsageInfoRequest = new StringBuilder();
 
+        //Validate if the userID exists.
         String userID = usageHistoryRequest.getUserID();
         if(!usageDetailsMapInMemory.containsKey(userID)) {
             responseFromValidateUsageInfoRequest.
                     append(VALIDATION_ERROR_USER_ID_DOES_NOT_EXIST);
         }
 
+        //Validate if the date passed is not a future date.
         String timeStamp = usageHistoryRequest.getStartDate();
         Date datePassed = null;
         try {
